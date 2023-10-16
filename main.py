@@ -28,13 +28,16 @@ def download_books():
         response = requests.get(url)
         response.raise_for_status()
         try:
+
             check_for_redirect(response)
             book_url = f"https://tululu.org/b{i}/"
-            download_img(book_url)
-            title = get_title(book_url)
+            soup = get_soup(book_url)
+            download_img(soup)
+            title = get_title(soup)
             download_txt(url, f'{i}.{title}', folder='books/')
             print(title)
-            download_comments(book_url)
+            get_book_genre(soup)
+            #download_comments(soup)
         except requests.HTTPError:
             continue
 
@@ -46,24 +49,28 @@ def download_txt(url, filename, folder='books/'):
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
-def get_title(book_url):
-    soup = get_soup(book_url)
+def get_title(soup):
     title_tag = soup.find('h1')
     title_text = title_tag.text
     title = title_text.split('::')[0].strip()
     return title
 
 
-def download_comments(book_url):
-    soup = get_soup(book_url)
+def get_book_genre(soup):
+    genres = soup.find_all(class_='d_book')[1]
+    genres1 = genres.find_all('a')
+    print([x.text for x in genres1])
+    
+
+
+def download_comments(soup):
     comments = soup.find_all(class_='texts')
     for comment in comments:
         if comment:
             print(comment.find(class_='black').text)
 
 
-def download_img(book_url, folder='images/'):
-    soup = get_soup(book_url)
+def download_img(soup, folder='images/'):
     site_url = 'https://tululu.org/'
     img_tag = soup.find('div', class_='bookimage').find('img')['src']
     img_url = urljoin(site_url, img_tag)
