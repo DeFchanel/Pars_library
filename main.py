@@ -3,7 +3,7 @@ import os
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlsplit
-
+from pprint import pprint
 
 dir1_name = 'books'
 dir2_name = 'images'
@@ -30,9 +30,11 @@ def download_books():
         try:
             check_for_redirect(response)
             book_url = f"https://tululu.org/b{i}/"
-            print(download_img(book_url))
+            download_img(book_url)
             title = get_title(book_url)
             download_txt(url, f'{i}.{title}', folder='books/')
+            print(title)
+            download_comments(book_url)
         except requests.HTTPError:
             continue
 
@@ -52,6 +54,14 @@ def get_title(book_url):
     return title
 
 
+def download_comments(book_url):
+    soup = get_soup(book_url)
+    comments = soup.find_all(class_='texts')
+    for comment in comments:
+        if comment:
+            print(comment.find(class_='black').text)
+
+
 def download_img(book_url, folder='images/'):
     soup = get_soup(book_url)
     site_url = 'https://tululu.org/'
@@ -62,7 +72,6 @@ def download_img(book_url, folder='images/'):
     filename = urlsplit(img_tag).path
     filename1 = filename.split('/')[-1]
     filepath = os.path.join(folder, filename1)
-    print(filepath)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
