@@ -4,16 +4,7 @@ import argparse
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlsplit
-from pprint import pprint
 
-dir1_name = 'books'
-dir2_name = 'images'
-os.makedirs(dir1_name, exist_ok=True)
-os.makedirs(dir2_name, exist_ok=True)
-parser = argparse.ArgumentParser()
-parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
-parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
-args = parser.parse_args()
 
 def check_for_redirect(response):
     if response.url == 'https://tululu.org/':
@@ -99,5 +90,13 @@ def download_books():
         except requests.HTTPError:
             continue
 
-
-download_books()
+if __name__ == '__main__':
+    dir1_name = 'books'
+    dir2_name = 'images'
+    os.makedirs(dir1_name, exist_ok=True)
+    os.makedirs(dir2_name, exist_ok=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
+    parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
+    args = parser.parse_args()
+    download_books()
