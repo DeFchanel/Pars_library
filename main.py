@@ -1,5 +1,6 @@
 import requests
 import os
+import argparse
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlsplit
@@ -9,7 +10,10 @@ dir1_name = 'books'
 dir2_name = 'images'
 os.makedirs(dir1_name, exist_ok=True)
 os.makedirs(dir2_name, exist_ok=True)
-
+parser = argparse.ArgumentParser()
+parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
+parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
+args = parser.parse_args()
 
 def check_for_redirect(response):
     if response.url == 'https://tululu.org/':
@@ -78,7 +82,7 @@ def parse_book_page(soup):
 
 
 def download_books():
-    for i in range(1, 11):
+    for i in range(args.start_id, args.end_id + 1):
         url = f"https://tululu.org/txt.php?id={i}"
         response = requests.get(url)
         response.raise_for_status()
@@ -90,7 +94,8 @@ def download_books():
             download_img(soup)
             title = parsed_page['title']
             download_txt(url, f'{i}.{title}', folder='books/')
-            print(parsed_page)
+            print('Название:', parsed_page['title'])
+            print('Автор:', parsed_page['author'])
         except requests.HTTPError:
             continue
 
