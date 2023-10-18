@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ### Как запустить
 Запустить код можно с помощью команды:
 ```python
-    python3 main.py --start_id 1 --end_id 1
+python3 main.py --start_id 1 --end_id 1
 ```
 указав нужные аргументы
 ### Аргументы
