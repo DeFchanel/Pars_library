@@ -14,6 +14,11 @@ def check_for_redirect(response):
 def get_soup(url):
     response = requests.get(url)
     response.raise_for_status()
+    try:
+        check_for_redirect(response)
+    except requests.HTTPError:
+        print('Книга не найдена')
+        raise requests.HTTPError
     soup = BeautifulSoup(response.text, 'lxml')
     return soup
 
@@ -37,9 +42,14 @@ def get_comments(soup):
     return [comment.find(class_='black').text for comment in comments]
 
 
-def download_txt(url, filename, folder='books/'):
-    response = requests.get(url)
+def download_txt(url, filename,  payload, folder='books/'):
+    response = requests.get(url, params=payload)
     response.raise_for_status()
+    try:
+        check_for_redirect(response)
+    except requests.HTTPError:
+        print('Книга не найдена')
+        raise requests.HTTPError
     sanitized_filename = sanitize_filename(filename)
     filepath = os.path.join(folder, sanitized_filename)
     with open(filepath, 'wb') as file:
@@ -87,11 +97,11 @@ def download_books(start_book_id, end_book_id):
             parsed_page = parse_book_page(soup)
             download_img(soup)
             title = parsed_page['title']
-            download_txt(url, f'{i}.{title}', folder='books/')
+            download_txt(url, f'{i}.{title}', payload, folder='books/')
             print('Название:', parsed_page['title'])
             print('Автор:', parsed_page['author'])
         except requests.HTTPError:
-            continue
+            print('Книга не найдена')
 
 if __name__ == '__main__':
     book_dir_name = 'books'
