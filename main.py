@@ -95,7 +95,7 @@ if __name__ == '__main__':
     images_dir_name = 'images'
     os.makedirs(book_dir_name, exist_ok=True)
     os.makedirs(images_dir_name, exist_ok=True)
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Эта программа поможет вам спарсить книги с сайта tululu')
     parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
     parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
     args = parser.parse_args()
