@@ -20,8 +20,8 @@ def get_soup(url):
 
 def get_book_genres(soup):
     genres = soup.find_all(class_='d_book')[1]
-    genres1 = genres.find_all('a')
-    return [x.text for x in genres1]
+    book_genres = genres.find_all('a')
+    return [x.text for x in book_genres]
 
 
 def get_title_and_author(soup):
@@ -52,9 +52,9 @@ def download_img(soup, folder='images/'):
     img_url = urljoin(site_url, img_tag)
     response = requests.get(img_url)
     response.raise_for_status()
-    filename = urlsplit(img_tag).path
-    filename1 = filename.split('/')[-1]
-    filepath = os.path.join(folder, filename1)
+    filename_path = urlsplit(img_tag).path
+    filename = filename_path.split('/')[-1]
+    filepath = os.path.join(folder, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
@@ -91,10 +91,10 @@ def download_books():
             continue
 
 if __name__ == '__main__':
-    dir1_name = 'books'
-    dir2_name = 'images'
-    os.makedirs(dir1_name, exist_ok=True)
-    os.makedirs(dir2_name, exist_ok=True)
+    book_dir_name = 'books'
+    images_dir_name = 'images'
+    os.makedirs(book_dir_name, exist_ok=True)
+    os.makedirs(images_dir_name, exist_ok=True)
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
     parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
