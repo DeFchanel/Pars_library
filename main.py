@@ -74,8 +74,11 @@ def parse_book_page(soup):
 
 def download_books(start_book_id, end_book_id):
     for i in range(start_book_id, end_book_id + 1):
-        url = f"https://tululu.org/txt.php?id={i}"
-        response = requests.get(url)
+        payload = {
+            'id': i
+        }
+        url = f"https://tululu.org/txt.php"
+        response = requests.get(url, params=payload)
         response.raise_for_status()
         try:
             check_for_redirect(response)
