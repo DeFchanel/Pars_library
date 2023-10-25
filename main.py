@@ -72,8 +72,8 @@ def parse_book_page(soup):
     }
 
 
-def download_books():
-    for i in range(args.start_id, args.end_id + 1):
+def download_books(start_book_id, end_book_id):
+    for i in range(start_book_id, end_book_id + 1):
         url = f"https://tululu.org/txt.php?id={i}"
         response = requests.get(url)
         response.raise_for_status()
@@ -99,4 +99,4 @@ if __name__ == '__main__':
     parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
     parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
     args = parser.parse_args()
-    download_books()
+    download_books(args.start_id, args.end_id)
