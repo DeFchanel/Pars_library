@@ -4,6 +4,7 @@ import argparse
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlsplit
+import time
 
 
 def check_for_redirect(response):
@@ -34,7 +35,7 @@ def get_title_and_author(soup):
     title_text = title_tag.text
     title = title_text.split('::')[0].strip()
     author = title_text.split('::')[1].strip()
-    return [title, author]
+    return title, author
 
 
 def get_comments(soup):
@@ -56,10 +57,9 @@ def download_txt(url, filename,  payload, folder='books/'):
         file.write(response.content)
 
 
-def download_img(soup, folder='images/'):
-    site_url = 'https://tululu.org/'
-    img_tag = soup.find('div', class_='bookimage').find('img')['src']
-    img_url = urljoin(site_url, img_tag)
+def download_img(soup, book_url, folder='images/'):
+    img_tag = parse_book_page(soup)['image']
+    img_url = urljoin(book_url, img_tag)
     response = requests.get(img_url)
     response.raise_for_status()
     filename_path = urlsplit(img_tag).path
@@ -70,38 +70,45 @@ def download_img(soup, folder='images/'):
 
 
 def parse_book_page(soup):
-    title = get_title_and_author(soup)[0]
-    author = get_title_and_author(soup)[1]
+    title, author = get_title_and_author(soup)
     genres = get_book_genres(soup)
     comments = get_comments(soup)
+    image = soup.find('div', class_='bookimage').find('img')['src']
     return {
         'title': title,
         'author': author,
         'genres': genres,
-        'comments': comments
+        'comments': comments,
+        'image': image
     }
 
 
 def download_books(start_book_id, end_book_id):
-    for i in range(start_book_id, end_book_id + 1):
-        payload = {
-            'id': i
-        }
-        url = f"https://tululu.org/txt.php"
-        response = requests.get(url, params=payload)
-        response.raise_for_status()
-        try:
-            check_for_redirect(response)
-            book_url = f"https://tululu.org/b{i}/"
-            soup = get_soup(book_url)
-            parsed_page = parse_book_page(soup)
-            download_img(soup)
-            title = parsed_page['title']
-            download_txt(url, f'{i}.{title}', payload, folder='books/')
-            print('Название:', parsed_page['title'])
-            print('Автор:', parsed_page['author'])
-        except requests.HTTPError:
-            print('Книга не найдена')
+    try:
+        for i in range(start_book_id, end_book_id + 1):
+            payload = {
+                'id': i
+            }
+            url = f"https://tululu.org/txt.php"
+            response = requests.get(url, params=payload)
+            response.raise_for_status()
+            try:
+                check_for_redirect(response)
+                book_url = f"https://tululu.org/b{i}/"
+                soup = get_soup(book_url)
+                parsed_page = parse_book_page(soup)
+                download_img(soup, book_url)
+                title = parsed_page['title']
+                download_txt(url, f'{i}.{title}', payload, folder='books/')
+                print('Название:', parsed_page['title'])
+                print('Автор:', parsed_page['author'])
+            except requests.HTTPError:
+                print('Книга не найдена')
+    except requests.exceptions.ConnectionError:
+        print('Ошибка соединения')
+        time.sleep(10)
+        download_books(start_book_id, end_book_id)
+
 
 if __name__ == '__main__':
     book_dir_name = 'books'
