@@ -15,11 +15,7 @@ def check_for_redirect(response):
 def get_soup(url):
     response = requests.get(url)
     response.raise_for_status()
-    try:
-        check_for_redirect(response)
-    except requests.HTTPError:
-        print('Книга не найдена')
-        raise requests.HTTPError
+    check_for_redirect(response)
     soup = BeautifulSoup(response.text, 'lxml')
     return soup
 
@@ -46,19 +42,14 @@ def get_comments(soup):
 def download_txt(url, filename,  payload, folder='books/'):
     response = requests.get(url, params=payload)
     response.raise_for_status()
-    try:
-        check_for_redirect(response)
-    except requests.HTTPError:
-        print('Книга не найдена')
-        raise requests.HTTPError
+    check_for_redirect(response)
     sanitized_filename = sanitize_filename(filename)
     filepath = os.path.join(folder, sanitized_filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
 
-def download_img(soup, book_url, folder='images/'):
-    img_tag = parse_book_page(soup)['image']
+def download_img(book_url, img_tag, folder='images/'):
     img_url = urljoin(book_url, img_tag)
     response = requests.get(img_url)
     response.raise_for_status()
@@ -84,30 +75,28 @@ def parse_book_page(soup):
 
 
 def download_books(start_book_id, end_book_id):
-    try:
-        for i in range(start_book_id, end_book_id + 1):
+        for book_id in range(start_book_id, end_book_id + 1):
             payload = {
-                'id': i
+                'id': book_id
             }
             url = f"https://tululu.org/txt.php"
-            response = requests.get(url, params=payload)
-            response.raise_for_status()
             try:
+                response = requests.get(url, params=payload)
+                response.raise_for_status()
                 check_for_redirect(response)
-                book_url = f"https://tululu.org/b{i}/"
+                book_url = f"https://tululu.org/b{book_id}/"
                 soup = get_soup(book_url)
                 parsed_page = parse_book_page(soup)
-                download_img(soup, book_url)
+                download_img(book_url, parsed_page['image'])
                 title = parsed_page['title']
-                download_txt(url, f'{i}.{title}', payload, folder='books/')
+                download_txt(url, f'{book_id}.{title}', payload, folder='books/')
                 print('Название:', parsed_page['title'])
                 print('Автор:', parsed_page['author'])
             except requests.HTTPError:
                 print('Книга не найдена')
-    except requests.exceptions.ConnectionError:
-        print('Ошибка соединения')
-        time.sleep(10)
-        download_books(start_book_id, end_book_id)
+            except requests.exceptions.ConnectionError:
+                print('Ошибка соединения')
+                time.sleep(10)
 
 
 if __name__ == '__main__':
