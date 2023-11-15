@@ -76,10 +76,11 @@ def parse_book_page(soup):
 
 def download_books(start_book_id, end_book_id):
         for book_id in range(start_book_id, end_book_id + 1):
+            print(book_id)
             payload = {
                 'id': book_id
             }
-            url = f"https://tululu.org/txt.php"
+            url = "https://tululu.org/txt.php"
             try:
                 response = requests.get(url, params=payload)
                 response.raise_for_status()
@@ -90,8 +91,8 @@ def download_books(start_book_id, end_book_id):
                 download_img(book_url, parsed_page['image'])
                 title = parsed_page['title']
                 download_txt(url, f'{book_id}.{title}', payload, folder='books/')
-                print('Название:', parsed_page['title'])
-                print('Автор:', parsed_page['author'])
+                # print('Название:', parsed_page['title'])
+                # print('Автор:', parsed_page['author'])
             except requests.HTTPError:
                 print('Книга не найдена')
             except requests.exceptions.ConnectionError:
