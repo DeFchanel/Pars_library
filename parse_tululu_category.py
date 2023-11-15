@@ -15,9 +15,10 @@ for book in range(1, 4):
     url = f'http://tululu.org/l55/{book}'
     soup = get_soup(url)
     books_ids = []
-    books = soup.find_all(class_='d_book')
+    books_selector = ".d_book"
+    books = soup.select(books_selector)
     for book in books:
-        books_ids.append(book.find('a')['href'][2: -1])
+        books_ids.append(book.select_one('a')['href'][2: -1])
     for book_number, id in enumerate(books_ids):
         try:
             payload = {
