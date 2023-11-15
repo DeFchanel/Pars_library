@@ -91,8 +91,8 @@ def download_books(start_book_id, end_book_id):
                 download_img(book_url, parsed_page['image'])
                 title = parsed_page['title']
                 download_txt(url, f'{book_id}.{title}', payload, folder='books/')
-                # print('Название:', parsed_page['title'])
-                # print('Автор:', parsed_page['author'])
+                print('Название:', parsed_page['title'])
+                print('Автор:', parsed_page['author'])
             except requests.HTTPError:
                 print('Книга не найдена')
             except requests.exceptions.ConnectionError:
@@ -107,6 +107,6 @@ if __name__ == '__main__':
     os.makedirs(images_dir_name, exist_ok=True)
     parser = argparse.ArgumentParser(description='Эта программа поможет вам спарсить книги с сайта tululu')
     parser.add_argument('--start_id', help='ID книги, с которой хотите начать', type=int, default=1)
-    parser.add_argument('--end_id', help='ID книги, с которой хотите начать', type=int, default=11)
+    parser.add_argument('--end_id', help='ID книги, на которой вы хотите закончить', type=int, default=11)
     args = parser.parse_args()
     download_books(args.start_id, args.end_id)
