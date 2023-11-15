@@ -6,7 +6,7 @@ from main import get_soup, parse_book_page, download_img, download_txt
 import json
 
 
-def download_books_pages(start_page, end_page, skip_imgs, skip_txt, dest_books_json):
+def download_books_pages(start_page, end_page, skip_imgs, skip_txt, dest_img_folder, dest_books_folder, dest_books_json):
     for book in range(start_page, end_page + 1):
         books_info = []
         url = f'http://tululu.org/l55/{book}'
@@ -33,8 +33,8 @@ def download_books_pages(start_page, end_page, skip_imgs, skip_txt, dest_books_j
                     {
                         "title": title,
                         "author": parsed_page['author'],
-                        "img_src": urljoin('images/', parsed_page['author'][7:]),
-                        "book_path": urljoin('books/', f'{title}.txt'),
+                        "img_src": urljoin(f'{dest_img_folder}/', parsed_page['author'][7:]),
+                        "book_path": urljoin(f'{dest_books_folder}/', f'{title}.txt'),
                         "comments": parsed_page['comments'],
                         "genres": parsed_page['genres']
                     }
@@ -52,12 +52,12 @@ if __name__ == '__main__':
     parser.add_argument('--end_page', help='Страница, на которой вы хотите закончить', type=int, default=1)
     parser.add_argument('--skip_imgs', help='Хотите ли вы пропустить скачивание картинок', type=bool, default=False)
     parser.add_argument('--skip_txt', help='Хотите ли вы пропустить скачивание текста книг', type=bool, default=False)
-    parser.add_argument('--dest_img_folder', help='Хотите ли вы пропустить скачивание текста книг', type=str, default='images')
-    parser.add_argument('--dest_books_folder', help='Хотите ли вы пропустить скачивание текста книг', type=str, default='books')
-    parser.add_argument('--dest_books_json', help='Хотите ли вы пропустить скачивание текста книг', type=str, default='books')
+    parser.add_argument('--dest_img_folder', help='Название папки для фотографий', type=str, default='images')
+    parser.add_argument('--dest_books_folder', help='Название папки для текста книг', type=str, default='books')
+    parser.add_argument('--dest_books_json', help='Название файла для информации по книгам', type=str, default='books')
     args = parser.parse_args()
-    book_dir_name = args.dest_img_folder
-    images_dir_name = args.dest_books_folder
+    images_dir_name = args.dest_img_folder
+    book_dir_name = args.dest_books_folder
     os.makedirs(book_dir_name, exist_ok=True)
     os.makedirs(images_dir_name, exist_ok=True)
-    download_books_pages(args.start_page, args.end_page, args.skip_imgs, args.skip_txt, args.dest_books_json)
+    download_books_pages(args.start_page, args.end_page, args.skip_imgs, args.skip_txt, images_dir_name, book_dir_name, args.dest_books_json)

@@ -1,5 +1,5 @@
 # Парсер книг с сайта [tululu.org](tululu.org)
-Это программа, которая скачивает нужные Вам книги по ID с сайта [tululu.org](tululu.org).
+Это программа, которая скачивает нужные Вам книги по ID или книги с нужных вам страниц с сайта [tululu.org](tululu.org)
 
 ### Как установить
 
@@ -10,17 +10,24 @@ pip install -r requirements.txt
 ```
 
 ### Как запустить
-Запустить код можно с помощью команды:
+Запустить код для скачивания книг по ID можно с помощью команды:
 ```python
 python3 main.py --start_id 1 --end_id 1
 ```
 указав нужные аргументы
+
+Запустить код для скачивания книг по страницам можно с помощью команды:
+```python
+python3 parse_tululu_category.py --start_page 1 --end_page 1 --skip_imgs True --skip_txt True --dest_img_folder images --dest_books_folder books --dest_books_json books
+```
 ### Аргументы
 
-В программе доступны два необязательных аргументов: `--start_id` и `--end_id`
+В 1 программе доступны два необязательных аргументов: `--start_id` и `--end_id`
 1. `--start_id` - ID книги, с которой надо скачивать.
 2. `--end_id` - ID книги, по которой надо скачивать.
 Если эти аргументы не указаны, то первая программа скачивает книги с 1 по 10.
+
+Во 2 программе доступны семь необязательных аргументов: --start_page, --end_page, --skip_imgs, --skip txt, --dest_img_folder,--dest_books_folder и --dest_books_json 
 
 ### Цель проекта
 
