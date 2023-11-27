@@ -16,27 +16,39 @@ def download_books_pages(books, page, skip_imgs, skip_txt, dest_img_folder, dest
     for book in selected_books:
         books_ids.append(book.select_one('a')['href'][2: -1])
     for book_id in books_ids:
-            payload = {
-                'id': book_id
-            }
-            book_url = urljoin('http://tululu.org/', f'b{book_id}')
-            book_page_soup = get_soup(book_url)
-            parsed_page = parse_book_page(book_page_soup)
-            if not skip_imgs:
+        payload = {
+            'id': book_id
+        }
+        book_url = urljoin('http://tululu.org/', f'b{book_id}')
+        book_page_soup = get_soup(book_url)
+        parsed_page = parse_book_page(book_page_soup)
+        if not skip_imgs:
+            try:
                 download_img(book_url, parsed_page['image'])
-            title = parsed_page['title']
-            if not skip_txt:
+            except requests.HTTPError:
+                print('Ошибка скачивания картинки')
+            except requests.exceptions.ConnectionError:
+                print('Ошибка соединения')
+                time.sleep(10)
+        title = parsed_page['title']
+        if not skip_txt:
+            try:
                 download_txt('https://tululu.org/txt.php', f'{title}', payload)
-            books.append(
-                {
-                    "title": title,
-                    "author": parsed_page['author'],
-                    "img_src": urljoin(f'{dest_img_folder}/', parsed_page['author'][7:]),
-                    "book_path": urljoin(f'{dest_books_folder}/', f'{title}.txt'),
-                    "comments": parsed_page['comments'],
-                    "genres": parsed_page['genres']
-                }
-            )
+            except requests.HTTPError:
+                print('Ошибка скачивания текста')
+            except requests.exceptions.ConnectionError:
+                print('Ошибка соединения')
+                time.sleep(10)
+        books.append(
+            {
+                "title": title,
+                "author": parsed_page['author'],
+                "img_src": urljoin(f'{dest_img_folder}/', parsed_page['author'][7:]),
+                "book_path": urljoin(f'{dest_books_folder}/', f'{title}.txt'),
+                "comments": parsed_page['comments'],
+                "genres": parsed_page['genres']
+            }
+        )
 
 
 if __name__ == '__main__':

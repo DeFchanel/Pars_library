@@ -21,13 +21,16 @@ def get_soup(url):
 
 
 def get_book_genres(soup):
-    genres = soup.find_all(class_='d_book')[1]
-    book_genres = genres.find_all('a')
+    genres_selector = '.d_book'
+    genres = soup.select(genres_selector)[1]
+    book_genres_selector = 'a'
+    book_genres = genres.select(book_genres_selector)
     return [x.text for x in book_genres]
 
 
 def get_title_and_author(soup):
-    title_tag = soup.find('h1')
+    title_selector = 'h1'
+    title_tag = soup.select_one(title_selector)
     title_text = title_tag.text
     title = title_text.split('::')[0].strip()
     author = title_text.split('::')[1].strip()
@@ -35,8 +38,10 @@ def get_title_and_author(soup):
 
 
 def get_comments(soup):
-    comments = soup.find_all(class_='texts')
-    return [comment.find(class_='black').text for comment in comments]
+    comments_selector = '.texts'
+    comments = soup.select(comments_selector)
+    comment_selector = '.black'
+    return [comment.select_one(comment_selector).text for comment in comments]
 
 
 def download_txt(url, filename,  payload, folder='books/'):
@@ -64,7 +69,8 @@ def parse_book_page(soup):
     title, author = get_title_and_author(soup)
     genres = get_book_genres(soup)
     comments = get_comments(soup)
-    image = soup.find('div', class_='bookimage').find('img')['src']
+    image_selector = ".bookimage img"
+    image = soup.select_one(image_selector)['src']
     return {
         'title': title,
         'author': author,
@@ -93,6 +99,7 @@ def download_books(start_book_id, end_book_id):
                 download_txt(url, f'{book_id}.{title}', payload, folder='books/')
                 print('Название:', parsed_page['title'])
                 print('Автор:', parsed_page['author'])
+                print('Жанры:', parsed_page['genres'])
             except requests.HTTPError:
                 print('Книга не найдена')
             except requests.exceptions.ConnectionError:
