@@ -20,25 +20,31 @@ def download_books_pages(books, page, skip_imgs, skip_txt, dest_img_folder, dest
             'id': book_id
         }
         book_url = urljoin('http://tululu.org/', f'b{book_id}')
-        book_page_soup = get_soup(book_url)
-        parsed_page = parse_book_page(book_page_soup)
-        if not skip_imgs:
-            try:
-                download_img(book_url, parsed_page['image'])
-            except requests.HTTPError:
-                print('Ошибка скачивания картинки')
-            except requests.exceptions.ConnectionError:
-                print('Ошибка соединения')
-                time.sleep(10)
-        title = parsed_page['title']
-        if not skip_txt:
-            try:
-                download_txt('https://tululu.org/txt.php', f'{title}', payload)
-            except requests.HTTPError:
-                print('Ошибка скачивания текста')
-            except requests.exceptions.ConnectionError:
-                print('Ошибка соединения')
-                time.sleep(10)
+        try:
+            book_page_soup = get_soup(book_url)
+            parsed_page = parse_book_page(book_page_soup)
+            if not skip_imgs:
+                try:
+                    download_img(book_url, parsed_page['image'])
+                except requests.HTTPError:
+                    print('Ошибка скачивания картинки')
+                except requests.exceptions.ConnectionError:
+                    print('Ошибка соединения')
+                    time.sleep(10)
+            title = parsed_page['title']
+            if not skip_txt:
+                try:
+                    download_txt('https://tululu.org/txt.php', f'{title}', payload)
+                except requests.HTTPError:
+                    print('Ошибка скачивания текста')
+                except requests.exceptions.ConnectionError:
+                    print('Ошибка соединения')
+                    time.sleep(10)
+        except requests.HTTPError:
+            print('Ошибка обработки страницы')
+        except requests.exceptions.ConnectionError:
+            print('Ошибка соединения')
+            time.sleep(10)
         books.append(
             {
                 "title": title,
