@@ -63,6 +63,7 @@ def download_img(book_url, img_tag, folder='images/'):
     filepath = os.path.join(folder, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
+    return filepath
 
 
 def parse_book_page(soup):

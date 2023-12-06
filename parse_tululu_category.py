@@ -25,7 +25,7 @@ def download_books_pages(books, page, skip_imgs, skip_txt, dest_img_folder, dest
             parsed_page = parse_book_page(book_page_soup)
             if not skip_imgs:
                 try:
-                    download_img(book_url, parsed_page['image'])
+                    image = download_img(book_url, parsed_page['image'])
                 except requests.HTTPError:
                     print('Ошибка скачивания картинки')
                 except requests.exceptions.ConnectionError:
@@ -49,7 +49,7 @@ def download_books_pages(books, page, skip_imgs, skip_txt, dest_img_folder, dest
             {
                 "title": title,
                 "author": parsed_page['author'],
-                "img_src": urljoin(f'{dest_img_folder}/', parsed_page['author'][7:]),
+                "img_src": image,
                 "book_path": urljoin(f'{dest_books_folder}/', f'{title}.txt'),
                 "comments": parsed_page['comments'],
                 "genres": parsed_page['genres']
